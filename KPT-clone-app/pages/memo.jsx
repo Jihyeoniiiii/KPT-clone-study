@@ -7,8 +7,8 @@ const Container = styled.div`
     background-color: ${(props) => props.$backgroundColor};
     display: flex;
     justify-content: center;
-    align-items: center; // 텍스트를 중앙에 배치
-    overflow: hidden; // 텍스트 영역의 넘침 방지
+    align-items: center;
+    overflow: hidden;
 `;
 
 const TextArea = styled.textarea`
@@ -20,29 +20,23 @@ const TextArea = styled.textarea`
     padding: 10px;
     outline: none;
     resize: none;
-    box-sizing: border-box; // 패딩과 테두리를 포함한 전체 크기 조정
+    box-sizing: border-box;
 `;
 
-function Memo({ value, onChange, backgroundColor }) {
-    const [isEditing, setIsEditing] = useState(false);
+function Memo({ backgroundColor }) {
+    const [text, setText] = useState("");
 
-    const handleDoubleClick = () => {
-        setIsEditing(true);
-    };
-
-    const handleBlur = () => {
-        setIsEditing(false);
+    const handleChange = (event) => {
+        setText(event.target.value);
     };
 
     return (
-        <Container $backgroundColor={backgroundColor} onDoubleClick={handleDoubleClick}>
+        <Container $backgroundColor={backgroundColor}>
             <TextArea
-                value={value}
-                onChange={(event) => onChange(event.target.value)}
-                onBlur={handleBlur}
-                autoFocus={isEditing}
-                readOnly={!isEditing}
-                placeholder={!isEditing ? "Type anything, @mention anyone" : ""}
+                value={text}
+                onChange={handleChange}
+                autoFocus
+                placeholder="Type anything, @mention anyone"
             />
         </Container>
     );

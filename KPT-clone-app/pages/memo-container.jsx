@@ -1,20 +1,12 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import Memo from "./memo";
+import MemoList from "../pages/memo-list.jsx";
 
 const Container = styled.div`
   width: 1600px;
   height: 400px;
   background-color: ${(props) => props.$backgroundColor};
   position: relative;
-`;
-
-const MemoContainer = styled.div`
-  position: absolute;
-  top: ${(props) => props.$top}px;
-  left: ${(props) => props.$left}px;
-  cursor: grab;
-  user-select: none; // 추가: 드래그 중 텍스트 선택 방지
 `;
 
 function ContainerWithMemos({ backgroundColor }) {
@@ -50,14 +42,16 @@ function ContainerWithMemos({ backgroundColor }) {
     }
   }
 
-  function handleMouseDown(index, e) {
-    e.preventDefault(); // 드래그 시작
-    setDrag(index);
-    const rect = e.currentTarget.getBoundingClientRect();
-    setDragOffset({
-      x: e.clientX - rect.left - 60,
-      y: e.clientY - rect.top - 75,
-    });
+  function handleMouseDown(index) {
+    return (e) => {
+      e.preventDefault(); // 드래그 시작
+      setDrag(index);
+      const rect = e.currentTarget.getBoundingClientRect();
+      setDragOffset({
+        x: e.clientX - rect.left - 60,
+        y: e.clientY - rect.top - 75,
+      });
+    };
   }
 
   function handleMouseMove(e) {
@@ -80,10 +74,11 @@ function ContainerWithMemos({ backgroundColor }) {
   }
 
   function handleChange(index, text) {
-    const newMemos = memos.map((memo, i) =>
-      i === index ? { ...memo, text } : memo
+    setMemos((prevMemos) =>
+      prevMemos.map((memo, i) =>
+        i === index ? { ...memo, text } : memo
+      )
     );
-    setMemos(newMemos);
   }
 
   function getRandomColor() {
@@ -97,20 +92,11 @@ function ContainerWithMemos({ backgroundColor }) {
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
     >
-      {memos.map((memo, index) => (
-        <MemoContainer
-          key={index}
-          $top={memo.y}
-          $left={memo.x}
-          onMouseDown={(e) => handleMouseDown(index, e)}
-        >
-          <Memo
-            value={memo.text}
-            onChange={(text) => handleChange(index, text)}
-            backgroundColor={memo.color}
-          />
-        </MemoContainer>
-      ))}
+      <MemoList
+        memos={memos}
+        onChange={handleChange}
+        onMouseDown={handleMouseDown}
+      />
     </Container>
   );
 }
