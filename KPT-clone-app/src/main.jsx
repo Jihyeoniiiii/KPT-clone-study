@@ -1,12 +1,25 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import App from './App.jsx'
-import './index.css'
-import Memo from '../pages/memo.jsx'
-import Board from '../pages/board.jsx'
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import './index.css';
+import Account from '../pages/account.jsx';
+import Board from '../pages/board.jsx';
+
+const router = createBrowserRouter([
+  { 
+    path: '/', 
+    element: <Account />,
+    children: [
+      {
+        path: '/:userId/board',
+        element: <Board />,
+      },
+    ]
+  }
+]);
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <Board />
-  </StrictMode>,
-)
+    <RouterProvider router={router} />
+  </StrictMode>
+);

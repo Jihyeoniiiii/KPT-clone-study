@@ -3,13 +3,19 @@ import styled from "styled-components";
 import MemoList from "../pages/memo-list.jsx";
 
 const Container = styled.div`
-  width: 1600px;
+  width: 700px;
   height: 400px;
   background-color: ${(props) => props.$backgroundColor};
   position: relative;
 `;
 
-function ContainerWithMemos({ backgroundColor }) {
+const Title = styled.h3`
+  margin: 0;
+  padding: 10px;
+  text-align: left;
+`;
+
+function ContainerWithMemos({ backgroundColor, title }) {
   const [memos, setMemos] = useState([]);
   const [drag, setDrag] = useState(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
@@ -92,6 +98,7 @@ function ContainerWithMemos({ backgroundColor }) {
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
     >
+      <Title>{title}</Title>
       <MemoList
         memos={memos}
         onChange={handleChange}
