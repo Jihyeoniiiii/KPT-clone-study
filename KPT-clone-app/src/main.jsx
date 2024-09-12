@@ -6,16 +6,16 @@ import Account from '../pages/account.jsx';
 import Board from '../pages/board.jsx';
 
 const router = createBrowserRouter([
-  { 
-    path: '/', 
+{
+    path: '/',
     element: <Account />,
     children: [
       {
         path: '/:userId/board',
         element: <Board />,
       },
-    ]
-  }
+    ],
+  },
 ]);
 
 createRoot(document.getElementById('root')).render(

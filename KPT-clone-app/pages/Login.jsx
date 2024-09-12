@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { auth } from '../src/firebaseConfig.js';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { css } from 'styled-components';
+import Button from '../component/button.jsx';
 
 const Container = styled.div`
   display: flex;
@@ -32,32 +33,16 @@ const LogoArea = styled.div`
   gap: 10px;
 `;
 
-const ButtonStyle = css`
-  margin-top: 10px;
-  background-color: #EEEEEE;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-
-  &:hover {
-    background-color: #fff79afa;
-    border: none;
-  }
-`;
-
-const Button = styled.button`
-  ${ButtonStyle}
-`;
-
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       console.log('로그인 성공');
+      navigate('/:userId/board');
     } catch (error) {
       console.error('로그인 실패', error.message);
     }

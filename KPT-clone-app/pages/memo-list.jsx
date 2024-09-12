@@ -1,5 +1,5 @@
 import React from "react";
-import Memo from "../pages/memo.jsx";
+import Memo from "../component/memo.jsx";
 import styled from "styled-components";
 
 const MemoContainer = styled.div`
