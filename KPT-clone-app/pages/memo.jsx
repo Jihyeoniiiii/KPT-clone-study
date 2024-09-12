@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -6,8 +6,8 @@ const Container = styled.div`
     height: 130px;
     background-color: ${(props) => props.$backgroundColor};
     display: flex;
-    justify-content: center;
-    align-items: center;
+    flex-direction: column;
+    justify-content: space-between;
     overflow: hidden;
 `;
 
@@ -21,23 +21,40 @@ const TextArea = styled.textarea`
     outline: none;
     resize: none;
     box-sizing: border-box;
+    font-size: 10px;
 `;
 
-function Memo({ backgroundColor }) {
+const IdArea = styled.span`
+    display: flex;
+    text-align: start;
+    font-size: 10px;
+    color: gray;
+    padding: 0px 0px 10px 10px;
+`;
+
+function Memo({ backgroundColor, email }) {
     const [text, setText] = useState("");
+    const textAreaRef = useRef(null);
 
     const handleChange = (event) => {
         setText(event.target.value);
     };
 
+    const handleClick = () => {
+        if(textAreaRef.current) {
+            textAreaRef.current.focus();
+        }
+    };
+
     return (
-        <Container $backgroundColor={backgroundColor}>
+        <Container $backgroundColor={backgroundColor} onClick={handleClick}>
             <TextArea
+                ref={textAreaRef}
                 value={text}
                 onChange={handleChange}
-                autoFocus
                 placeholder="Type anything, @mention anyone"
             />
+            <IdArea>{email}</IdArea>
         </Container>
     );
 }

@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import MemoList from "../pages/memo-list.jsx";
+import { auth } from '../src/firebaseConfig.js';
 
 const Container = styled.div`
   width: 700px;
@@ -19,6 +20,18 @@ function ContainerWithMemos({ backgroundColor, title }) {
   const [memos, setMemos] = useState([]);
   const [drag, setDrag] = useState(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [userEmail, setUserEmail] = useState('');
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user && user.email) {
+        const emailPrefix = user.email.split('@')[0];  // 이메일 앞부분 추출
+        setUserEmail(emailPrefix);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   function handleAttach(e) {
     e.preventDefault();
@@ -88,8 +101,14 @@ function ContainerWithMemos({ backgroundColor, title }) {
   }
 
   function getRandomColor() {
-    return "#" + Math.floor(Math.random() * 16777215).toString(16);
+    const getRandomValue = () => Math.floor(Math.random() * 56) + 200;
+    const r = getRandomValue();
+    const g = getRandomValue();
+    const b = getRandomValue();
+    
+    return `rgb(${r}, ${g}, ${b})`;
   }
+  
 
   return (
     <Container
@@ -103,6 +122,7 @@ function ContainerWithMemos({ backgroundColor, title }) {
         memos={memos}
         onChange={handleChange}
         onMouseDown={handleMouseDown}
+        userEmail={userEmail}
       />
     </Container>
   );

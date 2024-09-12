@@ -1,4 +1,3 @@
-// src/Logout.jsx
 import React from 'react';
 import { auth } from '../src/firebaseConfig.js';
 import { signOut } from 'firebase/auth';

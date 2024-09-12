@@ -1,9 +1,8 @@
-// src/Account.jsx
 import React, { useEffect, useState, } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../src/firebaseConfig.js';
-import Login from './Login';
-import Logout from './Logout';
+import Login from './login.jsx';
+import Logout from './logout.jsx';
 import Board from './board.jsx';
 
 function Account() {
