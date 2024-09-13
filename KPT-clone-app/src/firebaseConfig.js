@@ -1,11 +1,8 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAuth } from 'firebase/auth';
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Firebase 설정 객체
 const firebaseConfig = {
   apiKey: "AIzaSyCsVP2nY7qfseeFBZlivLcfLjqIMx1yY98",
   authDomain: "kpt-clone.firebaseapp.com",
@@ -16,8 +13,12 @@ const firebaseConfig = {
   measurementId: "G-WX3S5337HV"
 };
 
-// Initialize Firebase
+// Firebase 앱 초기화
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 
-export { auth };
+// Firestore와 Authentication 객체 가져오기
+const auth = getAuth(app);
+const db = getFirestore(app);
+const firestore = getFirestore(app);
+
+export { auth, db, doc, setDoc, getDoc, firestore };

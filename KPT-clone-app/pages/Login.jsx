@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { auth } from '../src/firebaseConfig.js';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import Button from '../component/button.jsx';
 
@@ -36,13 +36,14 @@ const LogoArea = styled.div`
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const { userId } = useParams();
   const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       console.log('로그인 성공');
-      navigate('/:userId/board');
+      navigate(`/${userId}/board`);
     } catch (error) {
       console.error('로그인 실패', error.message);
     }

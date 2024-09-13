@@ -1,3 +1,4 @@
+// Memo.jsx
 import React, { useState, useRef } from "react";
 import styled from "styled-components";
 
@@ -32,8 +33,19 @@ const IdArea = styled.span`
     padding: 0px 0px 10px 10px;
 `;
 
-function Memo({ backgroundColor, email }) {
-    const [text, setText] = useState("");
+const SubmitButton = styled.button`
+    width: 100%;
+    height: 30px;
+    border: none;
+    background-color: #EEEEEE;
+    color: gray;
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 0px;
+`;
+
+function Memo({ backgroundColor, email, handleRightClick, index, onSave, value }) {
+    const [text, setText] = useState(value || "");
     const textAreaRef = useRef(null);
 
     const handleChange = (event) => {
@@ -41,9 +53,18 @@ function Memo({ backgroundColor, email }) {
     };
 
     const handleClick = () => {
-        if(textAreaRef.current) {
+        if (textAreaRef.current) {
             textAreaRef.current.focus();
         }
+    };
+
+    const handleContextMenu = (e) => {
+        e.preventDefault();
+        handleRightClick(index);
+    };
+
+    const handleSubmit = () => {
+        onSave(index, text);
     };
 
     return (
@@ -52,9 +73,11 @@ function Memo({ backgroundColor, email }) {
                 ref={textAreaRef}
                 value={text}
                 onChange={handleChange}
+                onContextMenu={handleContextMenu}
                 placeholder="Type anything, @mention anyone"
             />
             <IdArea>{email}</IdArea>
+            <SubmitButton onClick={handleSubmit}>입력</SubmitButton>
         </Container>
     );
 }

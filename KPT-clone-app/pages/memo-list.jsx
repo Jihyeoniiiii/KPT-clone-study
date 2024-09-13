@@ -10,7 +10,7 @@ const MemoContainer = styled.div`
   user-select: none;
 `;
 
-function MemoList({ memos, onChange, onMouseDown, userEmail }) {
+function MemoList({ memos, onChange, onMouseDown, userEmail, onRightClick, onSave }) {
   return (
     <>
       {memos.map((memo, index) => (
@@ -21,10 +21,13 @@ function MemoList({ memos, onChange, onMouseDown, userEmail }) {
           onMouseDown={onMouseDown(index)}
         >
           <Memo
-            value={memo.text}
+            value={memo.text || ""}
             onChange={(text) => onChange(index, text)}
+            handleRightClick={onRightClick}
+            index={index}
             backgroundColor={memo.color}
             email={userEmail}
+            onSave={onSave}
           />
         </MemoContainer>
       ))}

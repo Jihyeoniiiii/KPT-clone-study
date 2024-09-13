@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from "react";
-import styled from "styled-components";
 import MemoList from "../pages/memo-list.jsx";
-import { auth } from '../src/firebaseConfig.js';
+import { auth, firestore } from '../src/firebaseConfig.js'; // Ensure firestore is exported
+import styled from "styled-components";
+import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 
 const Container = styled.div`
   width: 700px;
   height: 400px;
   background-color: ${(props) => props.$backgroundColor};
   position: relative;
+  display: flex;
+  flex-direction: column;
 `;
 
 const Title = styled.h3`
@@ -16,26 +19,86 @@ const Title = styled.h3`
   text-align: left;
 `;
 
-function ContainerWithMemos({ backgroundColor, title }) {
+const LastTitle = styled.h3`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+`;
+
+const ContainerWithMemos = ({ backgroundColor, title, lastTitle }) => {
   const [memos, setMemos] = useState([]);
   const [drag, setDrag] = useState(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [userEmail, setUserEmail] = useState('');
+  const [userId, setUserId] = useState('');
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user && user.email) {
-        const emailPrefix = user.email.split('@')[0];  // 이메일 앞부분 추출
-        setUserEmail(emailPrefix);
+      if (user) {
+        setUserEmail(user.email.split('@')[0]);
+        setUserId(user.uid); // Assuming `uid` is available
+      } else {
+        setUserEmail('');
+        setUserId('');
       }
     });
 
     return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+    if (userId && title) {
+      const fetchMemos = async () => {
+        try {
+          const memosCollection = collection(firestore, `users/${userId}/${title}`);
+          const memoSnapshot = await getDocs(memosCollection);
+          const fetchedMemos = memoSnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }));
+          console.log("Fetched memos:", fetchedMemos); // Debugging line
+          setMemos(fetchedMemos);
+        } catch (error) {
+          console.error("Error fetching memos: ", error);
+        }
+      };
+  
+      fetchMemos();
+    }
+  }, [userId, title]);
+
+  async function saveMemoToDB(memo) {
+    try {
+      const memosCollection = collection(firestore, `users/${userId}/${title}`);
+      const docRef = await addDoc(memosCollection, memo);
+      return docRef.id;
+    } catch (error) {
+      console.error("Error adding document: ", error);
+    }
+  }
+
+  async function updateMemoInDB(id, updatedMemo) {
+    try {
+      const memoDoc = doc(firestore, `users/${userId}/${title}/${id}`);
+      await updateDoc(memoDoc, updatedMemo);
+    } catch (error) {
+      console.error("Error updating document: ", error);
+    }
+  }
+
+  async function deleteMemoFromDB(id) {
+    try {
+      const memoDoc = doc(firestore, `users/${userId}/${title}/${id}`);
+      await deleteDoc(memoDoc);
+    } catch (error) {
+      console.error("Error deleting document: ", error);
+    }
+  }
+
   function handleAttach(e) {
     e.preventDefault();
-    if (drag !== null) return; // 드래그 중에는 메모 추가를 방지
+    if (drag !== null) return;
 
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left - 60;
@@ -57,13 +120,16 @@ function ContainerWithMemos({ backgroundColor, title }) {
     });
 
     if (!isOverlap) {
-      setMemos([...memos, { text: "", x, y, color: getRandomColor() }]);
+      const newMemo = { text: "", x, y, color: getRandomColor() };
+      saveMemoToDB(newMemo).then(id => {
+        setMemos(prevMemos => [...prevMemos, { ...newMemo, id }]);
+      });
     }
   }
 
   function handleMouseDown(index) {
     return (e) => {
-      e.preventDefault(); // 드래그 시작
+      e.preventDefault();
       setDrag(index);
       const rect = e.currentTarget.getBoundingClientRect();
       setDragOffset({
@@ -80,11 +146,11 @@ function ContainerWithMemos({ backgroundColor, title }) {
       const newX = e.clientX - rect.left - 60 - dragOffset.x;
       const newY = e.clientY - rect.top - 75 - dragOffset.y;
 
-      setMemos(
-        memos.map((memo, index) =>
-          index === drag ? { ...memo, x: newX, y: newY } : memo
-        )
+      const updatedMemos = memos.map((memo, index) =>
+        index === drag ? { ...memo, x: newX, y: newY } : memo
       );
+      setMemos(updatedMemos);
+      updateMemoInDB(memos[drag].id, { x: newX, y: newY });
     }
   }
 
@@ -93,11 +159,23 @@ function ContainerWithMemos({ backgroundColor, title }) {
   }
 
   function handleChange(index, text) {
-    setMemos((prevMemos) =>
-      prevMemos.map((memo, i) =>
+    const updatedMemos = memos.map((memo, i) =>
         i === index ? { ...memo, text } : memo
-      )
     );
+    setMemos(updatedMemos);
+    updateMemoInDB(memos[index].id, { text });
+}
+
+function handleSave(index, text) {
+  handleChange(index, text); // Call handleChange to update and save
+}
+
+  function handleRightClick(index) {
+    const memoId = memos[index].id;
+    deleteMemoFromDB(memoId).then(() => {
+      const updatedMemos = memos.filter((_, i) => i !== index);
+      setMemos(updatedMemos);
+    });
   }
 
   function getRandomColor() {
@@ -105,10 +183,9 @@ function ContainerWithMemos({ backgroundColor, title }) {
     const r = getRandomValue();
     const g = getRandomValue();
     const b = getRandomValue();
-    
+
     return `rgb(${r}, ${g}, ${b})`;
   }
-  
 
   return (
     <Container
@@ -117,12 +194,19 @@ function ContainerWithMemos({ backgroundColor, title }) {
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
     >
-      <Title>{title}</Title>
+      {lastTitle ? (
+        <LastTitle>{lastTitle}</LastTitle>
+      ) : (
+        <Title>{title}</Title>
+      )}
+
       <MemoList
         memos={memos}
         onChange={handleChange}
+        onRightClick={handleRightClick}
         onMouseDown={handleMouseDown}
         userEmail={userEmail}
+        onSave={handleSave}
       />
     </Container>
   );
