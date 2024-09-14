@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import MemoList from "../pages/memo-list.jsx";
-import { auth, firestore } from '../src/firebaseConfig.js';
+import { auth, firestore } from '../firebaseConfig.js';
 import styled from "styled-components";
 import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 
@@ -164,11 +164,11 @@ const ContainerWithMemos = ({ backgroundColor, title, lastTitle }) => {
     );
     setMemos(updatedMemos);
     updateMemoInDB(memos[index].id, { text });
-}
+  } 
 
-function handleSave(index, text) {
-  handleChange(index, text); // Call handleChange to update and save
-}
+  function handleSave(index, text) {
+    handleChange(index, text);
+  }
 
   function handleRightClick(index) {
     const memoId = memos[index].id;

@@ -1,4 +1,3 @@
-// Memo.jsx
 import React, { useState, useRef } from "react";
 import styled from "styled-components";
 

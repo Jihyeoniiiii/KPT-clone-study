@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { auth } from '../src/firebaseConfig.js';
+import { auth } from '../firebaseConfig.js';
 import Login from './Login.jsx';
 import Logout from './Logout.jsx';
 import Board from '../pages/board.jsx';
