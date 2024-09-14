@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import MemoList from "../pages/memo-list.jsx";
-import { auth, firestore } from '../src/firebaseConfig.js'; // Ensure firestore is exported
+import { auth, firestore } from '../src/firebaseConfig.js';
 import styled from "styled-components";
 import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 
@@ -37,7 +37,7 @@ const ContainerWithMemos = ({ backgroundColor, title, lastTitle }) => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         setUserEmail(user.email.split('@')[0]);
-        setUserId(user.uid); // Assuming `uid` is available
+        setUserId(user.uid);
       } else {
         setUserEmail('');
         setUserId('');
@@ -57,7 +57,7 @@ const ContainerWithMemos = ({ backgroundColor, title, lastTitle }) => {
             id: doc.id,
             ...doc.data()
           }));
-          console.log("Fetched memos:", fetchedMemos); // Debugging line
+          console.log("Fetched memos:", fetchedMemos);
           setMemos(fetchedMemos);
         } catch (error) {
           console.error("Error fetching memos: ", error);
